@@ -13,6 +13,12 @@ const PORT = process.env.PORT
 app.use(express.json());
 connectToDataBase()
 
+app.use(cors({
+  origin: ['http://localhost:5173', 'http://localhost:3000', 'https://restaurant-chat-bot-one.vercel.app/'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization']
+}));
+
 app.get('/' , (req,res)=> {
     res.status(200).json({
         message : 'welcome to home page'
