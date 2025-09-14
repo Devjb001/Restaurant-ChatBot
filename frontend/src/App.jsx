@@ -2,13 +2,7 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-  const [messages, setMessages] = useState([
-  {
-    id: 1,
-    text: "Welcome to our Restaurant! How can I help you today?",
-    sender: 'bot'
-  }
-]);
+const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
 
   const addMessage = (text, sender = 'bot') => {
@@ -41,6 +35,7 @@ function App() {
         localStorage.setItem('sessionId', data.sessionId);
       }
     } catch (error) {
+      console.error('Connection error:', error);
       addMessage("Sorry, I'm having trouble connecting. Please try again.");
     }
   };
@@ -58,6 +53,11 @@ function App() {
       handleSendMessage();
     }
   };
+  useEffect(() => {
+    sendMessageToBackend('init');
+  }, []);
+
+
   return (
     <div className="chatbot-container">
       <div className="chatbot-header">
