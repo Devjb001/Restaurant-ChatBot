@@ -1,5 +1,6 @@
 const express = require('express')
 const { connectToDataBase } = require('./config/db')
+const chatRoutes = require('./routes/ChatRoute');
 const cors = require('cors');
 require('dotenv').config()
 
@@ -7,11 +8,13 @@ require('dotenv').config()
 const app = express()
 const PORT = process.env.PORT
 
+connectToDataBase()
 
 // Middleware
 app.use(express.json());
 app.use(cors());
-connectToDataBase()
+
+app.use('/api', chatRoutes);
 
 app.get('/' , (req,res)=> {
     res.status(200).json({
