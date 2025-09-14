@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
-const MenuItem = require('../models/MenuItem');
+const MenuItem = require('../models/Menu');
 
 
 const initializeMenu = async () => {
