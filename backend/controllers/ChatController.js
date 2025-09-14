@@ -1,6 +1,6 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
-const MenuItem = require('../models/Menu')
+const MenuItem = require('../models/MenuItem');
 
 
 const initializeMenu = async () => {
@@ -13,14 +13,13 @@ const initializeMenu = async () => {
       { name: "Salad", price: 8.99, category: "Appetizer", description: "Fresh garden salad" },
       { name: "Steak", price: 24.99, category: "Main", description: "Grilled ribeye steak" }
     ];
-    
     await MenuItem.insertMany(menuItems);
     console.log('Menu items initialized');
   }
 };
 
-initializeMenu();
 
+initializeMenu();
 
 const getOrCreateUser = async (sessionId) => {
   let user = await User.findOne({ sessionId });
@@ -31,8 +30,8 @@ const getOrCreateUser = async (sessionId) => {
   return user;
 };
 
-// Main chat endpoint
-app.post('/api/chat', async (req, res) => {
+
+const handleChat = async (req, res) => {
   try {
     const { message, sessionId } = req.body;
     
@@ -51,9 +50,8 @@ app.post('/api/chat', async (req, res) => {
     console.error('Chat error:', error);
     res.status(500).json({ error: 'Internal server error' });
   }
-});
+};
 
-// Process user messages
 const processMessage = async (message, user) => {
   const input = message.toLowerCase().trim();
 
@@ -137,14 +135,12 @@ const processMessage = async (message, user) => {
     return "No items in cart to checkout.";
   }
 
-  // Check if it's a menu item number
   const itemIndex = parseInt(input) - 1;
   const menuItems = await MenuItem.find({ available: true });
   
   if (itemIndex >= 0 && itemIndex < menuItems.length) {
     const selectedItem = menuItems[itemIndex];
-    
-    // Get or create pending order
+
     let pendingOrder = await Order.findOne({ 
       userId: user._id, 
       status: 'pending' 
@@ -160,7 +156,7 @@ const processMessage = async (message, user) => {
       });
     }
     
-    // Add item to order
+    
     pendingOrder.items.push({
       menuItemId: selectedItem._id,
       name: selectedItem.name,
@@ -168,7 +164,7 @@ const processMessage = async (message, user) => {
       quantity: 1
     });
     
-    // Update total
+    
     pendingOrder.totalAmount = pendingOrder.items.reduce((total, item) => 
       total + (item.price * item.quantity), 0
     );
@@ -181,3 +177,6 @@ const processMessage = async (message, user) => {
   return "Sorry, I didn't understand. Please select from the available options:\n\n1. Place an order\n2. Checkout order\n3. See order history\n4. See current order\n5. Cancel order";
 };
 
+module.exports = {
+  handleChat
+};
