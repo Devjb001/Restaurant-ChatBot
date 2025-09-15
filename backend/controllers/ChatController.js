@@ -1,23 +1,21 @@
 const User = require('../models/User');
 const Order = require('../models/Order');
-const MenuItem = require('../models/Menu');
-
+const MenuItem = require('../models/MenuItem');
 
 const initializeMenu = async () => {
   const count = await MenuItem.countDocuments();
   if (count === 0) {
     const menuItems = [
-      { name: "Burger", price: 12.99, category: "Main", description: "Juicy beef burger" },
-      { name: "Pizza", price: 15.99, category: "Main", description: "Classic margherita pizza" },
-      { name: "Pasta", price: 11.99, category: "Main", description: "Creamy alfredo pasta" },
-      { name: "Salad", price: 8.99, category: "Appetizer", description: "Fresh garden salad" },
-      { name: "Steak", price: 24.99, category: "Main", description: "Grilled ribeye steak" }
+      { name: "Burger", price: 12.99, category: "Main", description: "Juicy beef burger", available: true },
+      { name: "Pizza", price: 15.99, category: "Main", description: "Classic margherita pizza", available: true },
+      { name: "Pasta", price: 11.99, category: "Main", description: "Creamy alfredo pasta", available: true },
+      { name: "Salad", price: 8.99, category: "Appetizer", description: "Fresh garden salad", available: true },
+      { name: "Steak", price: 24.99, category: "Main", description: "Grilled ribeye steak", available: true }
     ];
     await MenuItem.insertMany(menuItems);
     console.log('Menu items initialized');
   }
 };
-
 
 initializeMenu();
 
@@ -29,7 +27,6 @@ const getOrCreateUser = async (sessionId) => {
   }
   return user;
 };
-
 
 const handleChat = async (req, res) => {
   try {
@@ -56,7 +53,7 @@ const processMessage = async (message, user) => {
   const input = message.toLowerCase().trim();
 
   if (input === 'init') {
-    return "Welcome to our Restaurant! How can I help you today?\n\nPlease select an option:\n1. Place an order\n2. Checkout order\n3. See order history\n4. See current order\n5. Cancel order";
+    return "Welcome to our Restaurant! 🍽️ How can I help you today?\n\nPlease select an option:\n1. Place an order\n2. Checkout order\n3. See order history\n4. See current order\n5. Cancel order";
   }
 
   if (input === '1') {
@@ -91,7 +88,7 @@ const processMessage = async (message, user) => {
     } else {
       const historyText = "Your order history:\n\n" +
         orders.map((order, index) => 
-          `Order ${index + 1}: ${order.items.map(item => item.name).join(', ')} - Total: $${order.totalAmount}`
+          `Order ${index + 1}: ${order.items.map(item => item.name).join(', ')} - Total: $${order.totalAmount.toFixed(2)}`
         ).join('\n');
       return historyText;
     }
@@ -107,7 +104,7 @@ const processMessage = async (message, user) => {
       return "Your cart is empty.";
     } else {
       const orderText = "Your current order:\n\n" +
-        pendingOrder.items.map(item => `${item.name} - $${item.price}`).join('\n') +
+        pendingOrder.items.map(item => `${item.name} - $${item.price.toFixed(2)}`).join('\n') +
         `\n\nTotal: $${pendingOrder.totalAmount.toFixed(2)}`;
       return orderText;
     }
@@ -130,10 +127,11 @@ const processMessage = async (message, user) => {
     if (pendingOrder && pendingOrder.items.length > 0) {
       pendingOrder.status = 'completed';
       await pendingOrder.save();
-      return "Order placed successfully!  Thank you for your order.";
+      return "Order placed successfully! 🎉 Thank you for your order.";
     }
     return "No items in cart to checkout.";
   }
+
 
   const itemIndex = parseInt(input) - 1;
   const menuItems = await MenuItem.find({ available: true });
@@ -156,7 +154,6 @@ const processMessage = async (message, user) => {
       });
     }
     
-    
     pendingOrder.items.push({
       menuItemId: selectedItem._id,
       name: selectedItem.name,
@@ -164,14 +161,13 @@ const processMessage = async (message, user) => {
       quantity: 1
     });
     
-    
     pendingOrder.totalAmount = pendingOrder.items.reduce((total, item) => 
       total + (item.price * item.quantity), 0
     );
     
     await pendingOrder.save();
     
-    return `${selectedItem.name} added to your order!`;
+    return `${selectedItem.name} added to your order! 🍽️`;
   }
 
   return "Sorry, I didn't understand. Please select from the available options:\n\n1. Place an order\n2. Checkout order\n3. See order history\n4. See current order\n5. Cancel order";

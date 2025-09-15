@@ -2,8 +2,9 @@ import React, { useState, useEffect } from 'react';
 import './App.css';
 
 function App() {
-const [messages, setMessages] = useState([]);
+  const [messages, setMessages] = useState([]);
   const [input, setInput] = useState('');
+  const [initialized, setInitialized] = useState(false);
 
   const addMessage = (text, sender = 'bot') => {
     const newMessage = {
@@ -53,10 +54,13 @@ const [messages, setMessages] = useState([]);
       handleSendMessage();
     }
   };
-  useEffect(() => {
-    sendMessageToBackend('init');
-  }, []);
 
+  useEffect(() => {
+    if (!initialized) {
+      sendMessageToBackend('init');
+      setInitialized(true);
+    }
+  }, [initialized]);
 
   return (
     <div className="chatbot-container">
