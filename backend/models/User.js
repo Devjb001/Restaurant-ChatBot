@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const userSchema = new mongoose.Schema({
@@ -8,6 +9,11 @@ const userSchema = new mongoose.Schema({
   },
   deviceInfo: {
     type: String
+  },
+  chatState: {
+    type: String,
+    enum: ['idle', 'awaiting_menu_selection'],
+    default: 'idle'
   }
 }, {
   timestamps: true

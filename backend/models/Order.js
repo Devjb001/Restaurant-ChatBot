@@ -1,3 +1,4 @@
+
 const mongoose = require('mongoose');
 
 const orderItemSchema = new mongoose.Schema({
@@ -27,12 +28,12 @@ const orderSchema = new mongoose.Schema({
   items: [orderItemSchema],
   totalAmount: {
     type: Number,
-    required: true
+    default: 0
   },
   status: {
     type: String,
     enum: ['pending', 'completed', 'cancelled'],
-    default: 'completed'
+    default: 'pending'
   }
 }, {
   timestamps: true
